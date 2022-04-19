@@ -29,11 +29,20 @@
     this.board.bars.push(this);
     //the tpe of the shape
     this.kind = "rectangle";
+    this.speed = 10;
   };
 
   self.Bar.prototype = {
-    down: function () {},
-    up: function () {},
+    up: function () {
+      this.y += this.speed;
+    },
+    down: function () {
+      this.y -= this.speed;
+    },
+    toString: function(){
+        return "x: "+this.x +"y: "+this.y;
+    }
+
   };
 })();
 
@@ -69,15 +78,28 @@
   }
 })();
 
+var board = new self.Board(800, 400);
+var bar = new Bar(20, 100, 40, 100, board);
+var bar = new Bar(735, 100, 40, 100, board);
+var canvas = document.getElementById("canvas");
+var board_view = new self.BoardView(canvas, board);
+
+
+// set movement of the rectangles
+document.addEventListener("keydown", function (ev) {
+  if (ev.key == "ArrowUp") {
+    bar.up();
+  } else if (ev.key == "ArrowDown") {
+    bar.down();
+  }
+
+  console.log(bar.toString());
+
+});
+
 window.addEventListener("load", main);
 
 //declaración de objetos por medio de funciones anónimas
 function main() {
-  var board = new self.Board(800, 400);
-  var bar = new Bar(20,100,40,100,board);
-  var bar = new Bar(735,100,40,100,board);
-  var canvas = document.getElementById("canvas");
-  var board_view = new self.BoardView(canvas, board);
-
   board_view.draw();
 }
