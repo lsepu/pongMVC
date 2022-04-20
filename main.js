@@ -7,11 +7,14 @@
     this.game_over = false;
     this.bars = [];
     this.ball = null;
+    this.playing = false;
   };
 
   self.Board.prototype = {
     get elements() {
-      var elements = this.bars.map(function(bar) { return bar});
+      var elements = this.bars.map(function (bar) {
+        return bar;
+      });
       elements.push(this.ball);
       return elements;
     },
@@ -19,18 +22,26 @@
 })();
 
 //Creación de la clase Ball (model) a partir de función
-(function(){
-    self.Ball = function(x,y,radius,board){
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.speed_y = 0;
-        this.speed_x = 3;
-        this.board = board;
-        board.ball = this;
-        this.kind="circle"
+(function () {
+  self.Ball = function (x, y, radius, board) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.speed_y = 0;
+    this.speed_x = 3;
+    this.board = board;
+    board.ball = this;
+    this.kind = "circle";
 
-    }
+    this.direction = 1;
+  };
+
+  self.Ball.prototype = {
+    move: function () {
+      this.x += this.speed_x * this.direction;
+      this.y += this.speed_y;
+    },
+  };
 })();
 
 //Creación de la clase Bar (model) a partir de función
@@ -84,8 +95,11 @@
     },
 
     play: function () {
-      board_view.clean();
-      board_view.draw();
+      if (this.board.playing) {
+        board_view.clean();
+        board_view.draw();
+        board_view.board.ball.move();
+      }
     },
   };
 
@@ -96,11 +110,11 @@
         ctx.fillRect(element.x, element.y, element.width, element.height);
         break;
       case "circle":
-          ctx.beginPath();
-          ctx.arc(element.x,element.y,element.radius,0,7);
-          ctx.fill();
-          ctx.closePath();
-          break;
+        ctx.beginPath();
+        ctx.arc(element.x, element.y, element.radius, 0, 7);
+        ctx.fill();
+        ctx.closePath();
+        break;
     }
   }
 })();
@@ -112,25 +126,32 @@ var canvas = document.getElementById("canvas");
 var board_view = new self.BoardView(canvas, board);
 var Ball = new Ball(350, 100, 10, board);
 
-// set movement of the rectangles
+// set movement of the rectangles and pause game
 document.addEventListener("keydown", function (ev) {
-  ev.preventDefault();
   if (ev.key == "ArrowUp") {
+    ev.preventDefault();
     bar.up();
   } else if (ev.key == "ArrowDown") {
+    ev.preventDefault();
     bar.down();
   } else if (ev.key == "w") {
+    ev.preventDefault();
     bar_2.up();
   } else if (ev.key == "s") {
+    ev.preventDefault();
     bar_2.down();
+  } else if ((ev.key = "blank space")) {
+    ev.preventDefault();
+    board.playing = !board.playing;
   }
 
   console.log(bar.toString());
 });
 
+
+board_view.draw();
 window.requestAnimationFrame(controller);
 
-//declaración de objetos por medio de funciones anónimas
 function controller() {
   board_view.play();
   window.requestAnimationFrame(controller);
